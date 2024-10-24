@@ -161,6 +161,11 @@ public class CameraActivity extends AppCompatActivity {
                 if (mouthOpen) {
                     openDialer();
                 }
+                // Si sonrie, llamar al 123
+                if (face.getSmilingProbability() != null && face.getSmilingProbability() > 0.5) {
+                    // Si está sonriendo, realizar la llamada al 123
+                    makeCall();
+                }
             }
         }
     }
@@ -219,6 +224,28 @@ public class CameraActivity extends AppCompatActivity {
     private void openDialer() {
         Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:3118617814"));
+        startActivity(intent);
+    }
+
+    // Método para abrir la configuración de Android
+    private void openSettings() {
+        Intent intent = new Intent(android.provider.Settings.ACTION_SETTINGS);
+        startActivity(intent);
+    }
+
+    // Método para realizar una llamada
+    private void makeCall() {
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        intent.setData(Uri.parse("tel:123"));
+
+        // Verificar si el permiso de llamada está concedido
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            // Si el permiso no está concedido, solicitarlo
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1);
+            return;
+        }
+
+        // Iniciar la llamada
         startActivity(intent);
     }
 }
