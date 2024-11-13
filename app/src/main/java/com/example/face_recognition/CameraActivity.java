@@ -137,30 +137,60 @@ public class CameraActivity extends AppCompatActivity {
             Toast.makeText(this, "No se detectaron rostros", Toast.LENGTH_SHORT).show();
         } else {
             for (Face face : faces) {
-                // Si el ojo izquierdo está cerrado, enviar un mensaje
-                if (face.getLeftEyeOpenProbability() != null && face.getLeftEyeOpenProbability() < 0.5) {
-                    sendMessage("3118617814", "El ojo izquierdo está cerrado.");
-                }
+                boolean actionTaken = false;
 
                 // Si ambos ojos están cerrados, abrir WhatsApp
                 if (face.getLeftEyeOpenProbability() != null && face.getLeftEyeOpenProbability() < 0.5 &&
                         face.getRightEyeOpenProbability() != null && face.getRightEyeOpenProbability() < 0.5) {
                     openWhatsApp();
+                    actionTaken = true;
+                }
+
+                // Si el ojo izquierdo está cerrado (y ambos ojos no están cerrados), enviar un mensaje
+                else if (!actionTaken && face.getLeftEyeOpenProbability() != null && face.getLeftEyeOpenProbability() < 0.5) {
+                    sendMessage("3118617814", "El ojo izquierdo está cerrado.");
+                    actionTaken = true;
+                }
+
+                // Si el ojo derecho está cerrado, abrir la configuración
+                else if (!actionTaken && face.getRightEyeOpenProbability() != null && face.getRightEyeOpenProbability() < 0.5) {
+                    openSettings();
+                    actionTaken = true;
                 }
 
                 // Si la boca está abierta, abrir la aplicación de llamadas
-                // Aquí usamos Landmark para comprobar si la boca está abierta
-                List<FaceLandmark> landmarks = face.getAllLandmarks();
-                boolean mouthOpen = false;
-                for (FaceLandmark landmark : landmarks) {
-                    if (landmark.getLandmarkType() == FaceLandmark.MOUTH_BOTTOM) {
-                        mouthOpen = true; // Lógica simplificada para detectar si la boca está abierta
-                        break;
+                else if (!actionTaken) {
+                    List<FaceLandmark> landmarks = face.getAllLandmarks();
+                    boolean mouthOpen = false;
+                    for (FaceLandmark landmark : landmarks) {
+                        if (landmark.getLandmarkType() == FaceLandmark.MOUTH_BOTTOM) {
+                            mouthOpen = true; // Detectar si la boca está abierta
+                            break;
+                        }
+                    }
+                    if (mouthOpen) {
+                        openDialer();
+                        actionTaken = true;
                     }
                 }
-                if (mouthOpen) {
-                    openDialer();
+
+                // Si el usuario está sonriendo (y no se han cumplido otras condiciones), llamar al 123
+                if (!actionTaken && face.getSmilingProbability() != null && face.getSmilingProbability() > 0.5) {
+                    makeCall();
+                    actionTaken = true;
                 }
+
+                // Si la cabeza está inclinada, abrir el navegador
+                if (!actionTaken && Math.abs(face.getHeadEulerAngleY()) > 20) {
+                    openBrowser();
+                    actionTaken = true;
+                }
+
+                // Si ninguna de las condiciones anteriores se cumple, muestra un mensaje
+                if (!actionTaken) {
+                    Toast.makeText(this, "No está realizando ninguna acción", Toast.LENGTH_SHORT).show();
+                }
+                break; // Procesar solo el primer rostro detectado
             }
         }
     }
@@ -220,5 +250,33 @@ public class CameraActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:3118617814"));
         startActivity(intent);
+    }
+
+    // Método para abrir la configuración de Android
+    private void openSettings() {
+        Intent intent = new Intent(android.provider.Settings.ACTION_SETTINGS);
+        startActivity(intent);
+    }
+
+    // Método para realizar una llamada
+    private void makeCall() {
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        intent.setData(Uri.parse("tel:123"));
+
+        // Verificar si el permiso de llamada está concedido
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            // Si el permiso no está concedido, solicitarlo
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, 1);
+            return;
+        }
+
+        // Iniciar la llamada
+        startActivity(intent);
+    }
+
+    // Método para abrir el navegador web
+    private void openBrowser() {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com"));
+        startActivity(browserIntent);
     }
 }
