@@ -8,6 +8,9 @@ appcompat = "1.7.0"
 material = "1.12.0"
 activity = "1.9.2"
 constraintlayout = "2.1.4"
+poseDetectionCommon = "17.0.0"
+poseDetection = "17.0.0"
+media3Common = "1.4.1"
 
 [libraries]
 face-detection = { module = "com.google.mlkit:face-detection", version.ref = "faceDetection" }
@@ -18,6 +21,9 @@ appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "a
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+pose-detection-common = { group = "com.google.mlkit", name = "pose-detection-common", version.ref = "poseDetectionCommon" }
+pose-detection = { group = "com.google.mlkit", name = "pose-detection", version.ref = "poseDetection" }
+media3-common = { group = "androidx.media3", name = "media3-common", version.ref = "media3Common" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
