@@ -37,7 +37,10 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation(libs.face.detection) // Dependencia corregida
+    implementation(libs.face.detection)
+    implementation(libs.pose.detection.common)
+    implementation(libs.pose.detection)
+    implementation(libs.media3.common) // Dependencia corregida
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
